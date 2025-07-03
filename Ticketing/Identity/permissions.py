@@ -2,8 +2,8 @@ from rest_framework.permissions import BasePermission
 
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
-        return request.user and request.user.groups.filter(name='ADMIN').exists()
+        return request.user and request.user.is_authenticated and request.user.groups.filter(name='ADMIN').exists()
 
 class IsUser(BasePermission):
     def has_permission(self, request, view):
-        return request.user and request.user.groups.filter(name='USER').exists()
+        return request.user and request.user.is_authenticated and request.user.groups.filter(name='USER').exists()

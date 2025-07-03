@@ -1,8 +1,13 @@
 from django.urls import path
-from .views import buy_event, events_view, my_tickets
+from .views import EventsView, TicketView
 
 urlpatterns = [
-    path('events/', events_view, name='events'),
-    path('events/<int:id>/buy/', buy_event, name='buy_event'),
-    path('my-tickets/', my_tickets, name='my_tickets'),
+    #GET: list events, POST: create event
+    path('events/', EventsView.as_view(), name='events'),
+
+    # POST: buy event ticket
+    path('events/<int:event_id>/buy/', TicketView.as_view(), name='buy_event'),
+
+    # GET: view my tickets (user-specific)
+    path('my-tickets/', TicketView.as_view(), name='my_tickets'),
 ]
