@@ -20,5 +20,4 @@ class EventAdmin(ModelAdmin):
             'fields': ('title', 'description', 'date', 'price', 'created_by'),
         }),
     )
-
     search_fields = ('title', 'description')
