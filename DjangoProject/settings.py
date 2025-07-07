@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'Ticketing.Identity',
     'Ticketing.Events',
+    'Ticketing.Payment',
 ]
 AUTH_USER_MODEL = 'Identity.User'
 

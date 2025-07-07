@@ -21,5 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('Ticketing.Identity.urls')),
     path('', include('Ticketing.Events.urls')),
-
+    path('payment/', include('Ticketing.Payment.urls')),
 ]
