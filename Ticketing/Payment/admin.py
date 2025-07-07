@@ -12,5 +12,5 @@ class PaymentAdmin(ModelAdmin):
 
     fieldsets = (
         (None, {'fields': ('user', 'amount')}),
-        ('Info', {'fields': ('timestamp', 'status', 'from_balance')}),
+        ('Info', {'fields': ('status', 'from_balance')}),
     )
