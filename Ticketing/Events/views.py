@@ -9,13 +9,18 @@ from Ticketing.Identity.permissions import IsAdmin, IsUser
 
 
 class EventsView(APIView):
-    @permission_classes([IsUser])
+    permission_classes = [IsUser]
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAdmin()]
+        return [IsUser()]
+
     def get(self, request):
         events = Event.objects.all()
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @permission_classes([IsAdmin])
     def post(self, request):
         serializer = EventSerializer(data=request.data)
         if serializer.is_valid():

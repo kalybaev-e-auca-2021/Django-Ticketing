@@ -1,8 +1,24 @@
 from django.contrib import admin
-from .models import Event
+from unfold.admin import ModelAdmin
 
-class EventAdmin(admin.ModelAdmin):
-    list_display = ('title', 'location', 'date', 'price', 'created_by')
-    search_fields = ('title', 'location')
+from Ticketing.Events.models import Event
 
-admin.site.register(Event, EventAdmin)
+
+@admin.register(Event)
+class EventAdmin(ModelAdmin):
+    ordering = ('date',)
+    list_display = ('title', 'description')
+
+    fieldsets = (
+        (None, {'fields': ('title', 'description')}),
+        ('Details', {'fields': ('date', 'price', 'created_by')})
+    )
+
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('title', 'description', 'date', 'price', 'created_by'),
+        }),
+    )
+
+    search_fields = ('title', 'description')
