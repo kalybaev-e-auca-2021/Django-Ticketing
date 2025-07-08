@@ -1,17 +1,25 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+import json
 
-from Ticketing.Events.models import Event, Ticket
+import stripe
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+
+from Ticketing.Events.models import Event, Ticket, Seat
 from Ticketing.Payment.models import Payment
 
-
 def issue_ticket(user, event, *, payment_method):
-    ticket = Ticket.objects.create(user=user, event=event)
+    seat = Seat.objects.filter(event=event, is_reserved=False).first()
+    if not seat:
+        raise Exception("No seats available")
+    seat.is_reserved = True
+    seat.save()
 
-    creator = event.created_by
-    creator.balance += event.price
-    creator.save()
+    ticket = Ticket.objects.create(
+        user=user,
+        event=event,
+        seat=seat,
+    )
 
     Payment.objects.create(
         user=user,
@@ -21,29 +29,21 @@ def issue_ticket(user, event, *, payment_method):
     )
     return ticket
 
-class PurchaseWithBalanceView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, event_id):
+class CreateStripePayment(APIView):
+    @csrf_exempt
+    def post(self, request):
+        data = json.loads(request.body)
+        user = request.user
+        event = Event.objects.get(id=data['event_id'])
         try:
-            event = Event.objects.get(id=event_id)
-            user = request.user
-
-            if user.balance < event.price:
-                return Response({'error': 'Insufficient balance'}, status=400)
-
-            user.balance -= event.price
-            user.save()
-
-            ticket = issue_ticket(user, event, payment_method='balance')
-
-            return Response({
-                'message': 'Ticket purchased successfully',
-                'ticket_id': ticket.id,
-                'new_balance': user.balance
-            }, status=201)
-
-        except Event.DoesNotExist:
-            return Response({'error': 'Event not found'}, status=404)
-        except Exception as e:
-            return Response({'error': str(e)}, status=500)
+            payment_intent = stripe.PaymentIntent.create(
+                amount=int(event.price*100),
+                currency='usd',
+                payment_method_types=['card'],
+                confirm=True,
+                payment_method='pm_card_visa',
+            )
+            ticket = issue_ticket(user, event, payment_method='stripe')
+            return JsonResponse({'status': 'success', 'payment_intent': payment_intent})
+        except stripe.error.StripeError as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})

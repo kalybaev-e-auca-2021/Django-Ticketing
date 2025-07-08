@@ -1,7 +1,7 @@
 from django.urls import path
 
-from Ticketing.Payment.views import PurchaseWithBalanceView
+from Ticketing.Payment.views import CreateStripePayment
 
 urlpatterns = [
-    path('purchase/<int:event_id>/', PurchaseWithBalanceView.as_view(), name='test-payment-intent'),
+    path('create-payment/', CreateStripePayment.as_view(), name='create-payment'),
 ]

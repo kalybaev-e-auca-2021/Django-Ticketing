@@ -1,6 +1,7 @@
 import os.path
 from datetime import timedelta
 from pathlib import Path
+import stripe
 
 from decouple import config
 
@@ -9,7 +10,6 @@ from Ticketing import Identity
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-^@n6d^&1z2n#s_b7)e^*j9)k_d!cp1l!#nxr=ig9se^w2vf17x'
-
 DEBUG = True
 
 ALLOWED_HOSTS = []
